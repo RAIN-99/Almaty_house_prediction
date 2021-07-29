@@ -8,7 +8,7 @@ from xgboost.sklearn import XGBRegressor
 from matplotlib import  pyplot
 import os
 import matplotlib.pyplot as plt
-regions=['turksibski','nauryzbaiski']
+regions=['turksibski','nauryzbaiski',"alatauski","almalinski","auezovski","bostandykski","jetysuski","medeuski"]
 for i in regions:
     full_data=pd.read_csv(f"../data/processed_data_{i}.csv")
     def fill_missing_values(data):
@@ -50,16 +50,15 @@ for i in regions:
                                                           importance_type='gain',
                                                           max_delta_step=0,
                                                           min_child_weight=1,
-                                                          missing=None,
                                                           n_jobs=4,
                                                           objective='reg:squarederror',
                                                           max_depth=4,
                                                           learning_rate=0.07,
                                                           random_state=5))])
     params = {
-        'regressor__n_estimators' : [400,800,1400,2000],
-        'regressor__max_depth' : [4,5,6],
-        'regressor__learning_rate' : [0.03,0.07,0.11],
+        'regressor__n_estimators' : [800],
+        'regressor__max_depth' : [4],
+        'regressor__learning_rate' : [0.07],
         'regressor__reg_lambda':[0.4],
         'regressor__reg_alpha':[0.4],
         'regressor__gamma':[0.1],
@@ -73,6 +72,7 @@ for i in regions:
     search_res.to_excel(f'../Models/{i}/optimization.xlsx')
     print(search_res[['mean_test_neg_root_mean_squared_error']])
     best_model = search.best_estimator_
-    y_test['prediction']=best_model.predict(X_test)
-    y_test.to_csv(f'../Models/{i}/comparison_results.csv',index=False)
+    X_test['prediction']=best_model.predict(X_test)
+    X_test['true_value']=y_test
+    X_test.to_csv(f'../Models/{i}/comparison_results.csv',index=False)
     dill.dump(best_model, open(f'../Models/{i}/Xgboost_model.pkl', 'wb'))
